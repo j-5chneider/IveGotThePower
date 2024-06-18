@@ -5,6 +5,8 @@ format: html
 
 # t-Test
 
+keiner mag t tests :/
+
 ## Paired samples
 
 ## Independent samples
@@ -27,11 +29,10 @@ format: html
 
 # SEM
 
-## Simple 
+## Simple
 
 ## Mediation Model
 
 ## Latent Growth Curve
 
 ## Multilevel?
-

@@ -1,0 +1,37 @@
+---
+title: "Untitled"
+format: html
+---
+
+# t-Test
+
+## Paired samples
+
+## Independent samples
+
+# Regression
+
+## Linear, multiple predictors
+
+## Logistic, multiple predictors
+
+## Multilevel
+
+## ANOVA, 2x2 between design
+
+## ANOVA, repeated measures
+
+## MANOVA
+
+# CFA
+
+# SEM
+
+## Simple 
+
+## Mediation Model
+
+## Latent Growth Curve
+
+## Multilevel?
+

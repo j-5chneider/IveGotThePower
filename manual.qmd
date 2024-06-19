@@ -47,7 +47,7 @@ hist(sleep$extra)
 
 # Regression
 
-## Linear, multiple predictors
+## Linear, multiple predictors (David)
 
 ## Logistic, multiple predictors
 

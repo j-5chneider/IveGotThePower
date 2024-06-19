@@ -32,7 +32,14 @@ css: www/style.css
 
 # t-Test
 
-keiner mag t tests :/ (kein Jürgen-Zitat ._. )
+keiner mag t tests :/ (kein Jürgen-Zitat ._. )  
+  
+**Hier kommen dann z.B. die R Code Chunks hin**
+
+```{r}
+hist(sleep$extra)
+```
+
 
 ## Paired samples
 

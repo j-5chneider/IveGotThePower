@@ -1,0 +1,18 @@
+/*.tocify .tocify-header {
+    width: 350px;
+}*/
+
+.title {
+    font-weight: bold;
+    color: #E73641;
+}
+
+h1 {
+    font-weight: bold;
+    color: #3B66B3;
+}
+
+h2 {
+    font-weight: bold;
+    color: #9db2d9;
+}

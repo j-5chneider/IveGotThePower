@@ -1,11 +1,38 @@
 ---
-title: "Untitled"
-format: html
+title: "Power analyses for typical statistical approaches"
+subtitle: "A collaborative manual"
+author:
+  - name: "R Jour Fixe"
+    affiliation: "Team SchuLe @ LLiB @ DIPF"
+    correspondence: true
+date: last-modified # inserts the date of last modification
+editor: source
+execute:
+  warning: false  # don't show warnings (there are no problems if you ignore them)
+  message: false  # don't show messages (e.g. when loading packages)
+  cache: false # true will prevent embed-resources 
+format: 
+  html:
+    theme: cerulean
+    number-sections: false
+    fontsize: 0.85em
+    toc: true           # include table of contents
+    toc-location: left
+    toc-depth: 3        # table of contents up to third header level
+    embed-resources: true # will make standalone html file
+    code-fold: show    # show code and make it foldable
+    code-tools: true   # show code tools on the top right
+    code-link: true    # make functions clickable as links
+editor_options: 
+  chunk_output_type: console
+css: www/style.css
 ---
+
+![](www/power_meme.jpg)
 
 # t-Test
 
-keiner mag t tests :/
+keiner mag t tests :/ (kein Jürgen-Zitat ._. )
 
 ## Paired samples
 
@@ -29,7 +56,7 @@ keiner mag t tests :/
 
 # SEM
 
-## Simple
+## Simple (Jürgen)
 
 ## Mediation Model
 

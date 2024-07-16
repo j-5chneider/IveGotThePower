@@ -64,10 +64,137 @@ hist(sleep$extra)
 
 # SEM
 
+
+
 ## Simple (Jürgen)
+
+
 
 ## Mediation Model
 
 ## Latent Growth Curve
 
 ## Multilevel?
+
+## All SEM-models (analysis for fit)
+
+::: {.panel-tabset} 
+
+#### What is tested?
+
+> How large does my sample have to be in order to acheive a pre-defined model fit?
+
+Of course we can also look for the achieved power, when providing a specific sample size.
+
+**What we need to provide (when investigating sample size)?**
+
+- the alpha error
+- the desired power
+- the type of effect measure we want to work with
+- the assumed magnitude of effect
+- the degrees of freedom of the model
+
+
+See <https://moshagen.github.io/semPower/#modelFreePower> for further details and explanations.
+
+#### R script example
+
+We are using a [SEM example](https://lavaan.ugent.be/tutorial/sem.html) from the lavaan tutorial website.  
+  
+The model:  
+![](www/sem-model-1.png)  
+
+We will be using the `semPower.aPriori()` function from the {semPower} package. 
+This function needs the following arguments to be specified:
+
+```{r}
+#| eval: false
+
+library(semPower)
+req_sample <- semPower.aPriori(
+                effect = ...,          # How large is the expected effect?
+                effect.measure = ...,  # On which effect measure?
+                alpha = ...,           # Which alpha level are we assuming?
+                power = ...,           # Which power are we looking for?
+                df = ...               # How many degrees of freedom does the model have?
+                )
+```
+::: {.column-margin .margin-top-900}
+*If you don't know how to determine the df of a model, check the [explanations from the semPower package](https://moshagen.github.io/semPower/#getDf) book.*
+:::
+
+\
+
+Let's check how we want to **fill these arguments**:
+
+
+1. **effect.measure**: If we investigate the overall fit of the model, we'll use the `effect.measure = "RMSEA"`. 
+2. **effect**: Depending on what we expect, we can assume different goodness of fit in the RMSEA metric (Close Fit RMSEA < 0.05; Reasonable Fit: RMSEA between 0.05 and 0.08; Poor Fit: RMSEA > 0.08). Let's go with an okay-ish fit `effect = .08`
+3. **alpha** and **power** are usually set to `alpha = .05` and `power = .8` based on conventions. Note: There might be good reasons to go for higher power.
+4. **df**: Lastly, we need to **determine the degrees of freedom** of our model. Therefore we need the *number of observed variables* and the *number of parameters to be estimated*. In this case we have 11 observed variables (in rectangular boxes) and the parameters estimated are:
+   - 4 loadings from `dem60` to `y1`, `y2`, `y3`, `y4`
+   - 4 loadings from `dem65` to `y5`, `y6`, `y7`, `y8`
+   - 3 loadings from `ind60` to `x1`, `x2`, `x3`
+   - 11 error variances of all observed variables (from `y1` to `x3`)
+   - 3 latent variances (`dem60`, `dem65`, `ind60`)
+   - 1 latent prediction path from `dem60` to `dem65`
+   - 1 latent prediction path from `ind60` to `dem60`
+   - 1 latent prediction path from `ind60` to `dem65`
+   - 6 error correlations (e.g., `y1` with `y5`)
+
+Applying [this guy's math](https://www.youtube.com/watch?v=yt4rjnAW2QM) in the formula $df = p\times(p+1)/2−q$ (where $p$ number of observed variables and $q$ is the number of free parameters of the hypothesized model), we'll have **32** *df*.
+
+
+\
+
+So if we **plug these in**, our function looks like this:
+
+```{r}
+library(semPower)
+req_sample <- semPower.aPriori(effect = .08,
+                               effect.measure = 'RMSEA',
+                               alpha = .05, 
+                               power = .80, 
+                               df = 34)
+```
+
+#### Interpretation of results
+```{r}
+summary(req_sample)
+```
+
+\
+
+In the row `Required Num Observations` indicates the $N$ needed to detect a fit of RMSEA = .08 with a probability of 80% (power): **120**.
+
+::: {.callout-note collapse="true" title="Explanation of the curves"}
+The plot shows two chi-square distributions: the central chi-square distribution under the null hypothesis (in red) and the non-central chi-square distribution under the alternative hypothesis (in blue).
+
+**Null Hypothesis ($H_0$)**
+
+The null hypothesis states that the model fits the data with an RMSEA value equal to or greater than the specified threshold value. In this case, the threshold value is 0.08, which is often considered the cutoff for acceptable model fit.  
+
+Formally: $H_0: RMSEA \geq 0.08$
+
+**Alternative Hypothesis ($H_1$)**
+
+The alternative hypothesis states that the model fits the data with an RMSEA value less than the specified threshold value.  
+
+Formally: $H_1: RMSEA \leq 0.08$
+
+**Lines in the plot**
+
+- Central Chi-Square Distribution (red solid line): Represents the distribution of the chi-square statistic if the null hypothesis is true. The critical chi-square value (approximately 48.60) marks the threshold above which we would reject the null hypothesis.
+- Non-Central Chi-Square Distribution (blue dashed line): Represents the distribution of the chi-square statistic if the alternative hypothesis is true. The peak of this distribution is shifted to the right, indicating that the true model deviates from the null model.
+
+**Error Regions**
+
+- Alpha Error (Type I Error): The area under the central chi-square curve to the right of the critical chi-square value. This area represents the probability of incorrectly rejecting the null hypothesis when it is true (false positive).
+- Beta Error (Type II Error): The area under the non-central chi-square curve to the left of the critical chi-square value. This area represents the probability of incorrectly failing to reject the null hypothesis when it is false (false negative).
+
+**Power**
+
+- The power of the test (1 - Beta) is represented by the area under the non-central chi-square curve to the right of the critical chi-square value. This area indicates the probability of correctly rejecting the null hypothesis when the alternative hypothesis is true.
+:::
+
+:::

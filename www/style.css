@@ -16,3 +16,16 @@ h2 {
     font-weight: bold;
     color: #9db2d9;
 }
+
+.margin-top-900 {
+  margin-top: 900px;
+}
+
+
+.blockquote {
+  background-color: #fceaec;
+}
+
+.blockquote>p {
+  font-weight: bold;
+}

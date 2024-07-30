@@ -136,13 +136,12 @@ Let's check how we want to **fill these arguments**:
    - 4 loadings from `dem65` to `y5`, `y6`, `y7`, `y8`
    - 3 loadings from `ind60` to `x1`, `x2`, `x3`
    - 11 error variances of all observed variables (from `y1` to `x3`)
-   - 3 latent variances (`dem60`, `dem65`, `ind60`)
    - 1 latent prediction path from `dem60` to `dem65`
    - 1 latent prediction path from `ind60` to `dem60`
    - 1 latent prediction path from `ind60` to `dem65`
    - 6 error correlations (e.g., `y1` with `y5`)
 
-Applying [this guy's math](https://www.youtube.com/watch?v=yt4rjnAW2QM) in the formula $df = p\times(p+1)/2−q$ (where $p$ number of observed variables and $q$ is the number of free parameters of the hypothesized model), we'll have **32** *df*.
+Applying [this guy's math](https://www.youtube.com/watch?v=yt4rjnAW2QM) in the formula $df = p\times(p+1)/2−q$ (where $p$ number of observed variables and $q$ is the number of free parameters of the hypothesized model), we'll have **35** *df*.
 
 
 \
@@ -155,7 +154,7 @@ req_sample <- semPower.aPriori(effect = .08,
                                effect.measure = 'RMSEA',
                                alpha = .05, 
                                power = .80, 
-                               df = 34)
+                               df = 35)
 ```
 
 #### Interpretation of results
@@ -165,7 +164,7 @@ summary(req_sample)
 
 \
 
-In the row `Required Num Observations` indicates the $N$ needed to detect a fit of RMSEA = .08 with a probability of 80% (power): **120**.
+In the row `Required Num Observations` indicates the $N$ needed to detect a fit of RMSEA = .08 with a probability of 80% (power): **`r req_sample$requiredN`**.
 
 ::: {.callout-note collapse="true" title="Explanation of the curves"}
 The plot shows two chi-square distributions: the central chi-square distribution under the null hypothesis (in red) and the non-central chi-square distribution under the alternative hypothesis (in blue).

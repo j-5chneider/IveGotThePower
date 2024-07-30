@@ -131,17 +131,58 @@ Let's check how we want to **fill these arguments**:
 1. **effect.measure**: If we investigate the overall fit of the model, we'll use the `effect.measure = "RMSEA"`. 
 2. **effect**: Depending on what we expect, we can assume different goodness of fit in the RMSEA metric (Close Fit RMSEA < 0.05; Reasonable Fit: RMSEA between 0.05 and 0.08; Poor Fit: RMSEA > 0.08). Let's go with an okay-ish fit `effect = .08`
 3. **alpha** and **power** are usually set to `alpha = .05` and `power = .8` based on conventions. Note: There might be good reasons to go for higher power.
-4. **df**: Lastly, we need to **determine the degrees of freedom** of our model. Therefore we need the *number of observed variables* and the *number of parameters to be estimated*. In this case we have 11 observed variables (in rectangular boxes) and the parameters estimated are:
-   - 4 loadings from `dem60` to `y1`, `y2`, `y3`, `y4`
-   - 4 loadings from `dem65` to `y5`, `y6`, `y7`, `y8`
-   - 3 loadings from `ind60` to `x1`, `x2`, `x3`
-   - 11 error variances of all observed variables (from `y1` to `x3`)
-   - 1 latent prediction path from `dem60` to `dem65`
-   - 1 latent prediction path from `ind60` to `dem60`
-   - 1 latent prediction path from `ind60` to `dem65`
-   - 6 error correlations (e.g., `y1` with `y5`)
+4. **df**: Lastly, we need to **determine the degrees of freedom** of our model. We can either let the function `semPower.getDf()` do this for us or we can embark on the adventurous quest of determining it by hand.
 
-Applying [this guy's math](https://www.youtube.com/watch?v=yt4rjnAW2QM) in the formula $df = p\times(p+1)/2−q$ (where $p$ number of observed variables and $q$ is the number of free parameters of the hypothesized model), we'll have **35** *df*.
+::: {.panel-tabset} 
+
+##### `semPower.getDf()`
+
+To get the df of your model, simply define it in a `lavaan` style syntax (see [here on how to do that](https://lavaan.ugent.be/tutorial/syntax1.html)). And then run the function `semPower.getDf()` on the object.
+
+```{r}
+library(semPower)
+model <- '
+  # measurement model
+    ind60 =~ x1 + x2 + x3
+    dem60 =~ y1 + y2 + y3 + y4
+    dem65 =~ y5 + y6 + y7 + y8
+  # regressions
+    dem60 ~ ind60
+    dem65 ~ ind60 + dem60
+  # residual correlations
+    y1 ~~ y5
+    y2 ~~ y4 + y6
+    y3 ~~ y7
+    y4 ~~ y8
+    y6 ~~ y8
+'
+
+semPower.getDf(model)
+```
+
+The result (as seen above) is `r semPower.getDf(model)`.
+
+##### Determine by hand
+Wow. You are brave. Ok let's do this.
+
+To determine the df of a SEM model we need the *number of observed variables* and the *number of parameters to be estimated*. In this case we have 11 observed variables (in rectangular boxes) and the parameters estimated are:
+
+- 4 loadings from `dem60` to `y1`, `y2`, `y3`, `y4`
+- 4 loadings from `dem65` to `y5`, `y6`, `y7`, `y8`
+- 3 loadings from `ind60` to `x1`, `x2`, `x3`
+- 11 error variances of all observed variables (from `y1` to `x3`)
+- 1 latent prediction path from `dem60` to `dem65`
+- 1 latent prediction path from `ind60` to `dem60`
+- 1 latent prediction path from `ind60` to `dem65`
+- 6 error correlations (e.g., `y1` with `y5`)
+
+Applying [this guy's math](https://www.youtube.com/watch?v=yt4rjnAW2QM) in the formula $df = p\times(p+1)/2−q$ (where $p$ number of observed variables and $q$ is the number of free parameters of the hypothesized model):
+
+$$df = 11\times(11+1)/2−31 = 35$$
+We'll have **35** *df*.
+:::
+
+
 
 
 \

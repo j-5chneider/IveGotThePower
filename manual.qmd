@@ -54,7 +54,7 @@ hist(sleep$extra)
 
 ## Multilevel
 
-## ANOVA, 2x2 between design
+## ANOVA, 2x2 between design (Anna)
 
 ## ANOVA, repeated measures
 

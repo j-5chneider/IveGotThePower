@@ -56,6 +56,73 @@ hist(sleep$extra)
 
 ## ANOVA, 2x2 between design (Anna)
 
+#### What is tested?
+
+#How large does your sample have to be to make the expected effect visible?
+
+We can also look for the achieved power, when providing a specific sample size.
+
+**What we need to provide (when investigating sample size)?**
+
+•	Number of groups/conditions: 	individual for your study
+    in R: k=
+•	Expected effect size (f): 	individual for your study
+    in R: f=
+•	Alpha-level: 			.05
+    in R: sig.level=.05
+•	Power: 				0.8 or 0.9			
+    in R: power=.9
+
+**Example 1: One-Way ANOVA**
+
+You want to know if students have a favorite subject among the subjects sports, art or music -> 3 groups. Derived from previous literature, you expect a moderate effect of 0.25. The level of significance should be 0.05 and the power = 0.8.
+
+```{library(pwr)
+
+pwr.anova.test(k = 3, f = 0.25, sig.level = 0.05, power = 0.8)}
+
+```
+
+Results: 
+
+“Balanced one-way analysis of variance power calculation 
+
+k = 3
+n = 52.3966
+f = 0.25
+sig.level = 0.05
+power = 0.8
+
+NOTE: n is number in each group”
+
+**Participants needed (3 group * 52,3966): **n = 157**
+
+**Example 2:Two Way ANOVA**
+
+You have two Factors, Factor A and Factor B, each has 2 categories/conditions. (2x2 = 4 group design; A1B1, A1B2, A2B1, A2B2). Derived from previous literature, for your overall model you expect a moderate effect of 0.25. The level of significance should be 0.05 and the power = 0.8.
+
+This is the simple version...
+...tests the overall model, instead of calculating the sample size for e.g. main effect A or B or their interaction isolated
+... is the same as for 1-Factor-ANOVA (s.o.)
+
+Only thing to mention:
+k = number of groups in total, in our case you calculate 2x2->k = 4 
+
+```{pwr.anova.test(k = 4,f= 0.25, sig.level = 0.05, power = 0.8)}
+
+```
+results: 
+	      "k = 4
+              n = 44.59927
+              f = 0.25
+      sig.level = 0.05
+          power = 0.8
+
+NOTE: n is number in each group"
+
+**Participants needed (4 groups x 44,59): 178.36.**
+
+
 ## ANOVA, repeated measures
 
 ## MANOVA

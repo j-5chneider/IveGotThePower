@@ -30,17 +30,151 @@ css: www/style.css
 
 ![](www/power_meme.jpg)
 
-# t-Test
+# t-Test (Charlotte)
 
-## Charlotte
+## Frequentistic (Charlotte)
 
-keiner mag t tests :/ (kein Jürgen-Zitat .\_. )
+## Bayesian (independent samples)
 
-**Hier kommen dann z.B. die R Code Chunks hin**
+::: {.panel-tabset} 
+
+#### What is tested?
+
+> How high is the probability of true positive, inconclusive and false negative results at any given sample size?
+
+**What we need to provide?**
+
+- the range of sample sizes we want to investigate
+- number of simulations to run (the more the ~merrier~ less variation)
+- the smallest effect size of interest
+- the hypothesis/hypotheses we want to compare
+
+#### R script example
 
 ```{r}
-hist(sleep$extra)
+library(bain)
+library(tidyverse)
+library(ggpubr)
 ```
+
+
+**Specifications of power analysis**
+
+```{r}
+# Which samples sizes are we looking at?
+samplesize_min <- 40    # min sample size to begin with
+samplesize_max <- 250   # max sample size to end with
+samplesize_step <- 10   # step size between min and max
+
+# how many simulations should do?
+n_sim <- 100
+
+# what is the smallest effect size of interest?
+smallest_es <- .36 # Taken from https://doi.org/10.1177%2F15562646211020160
+                   # see Tab. 2 "low reading level" vs. "control"
+                   # at DV "Comprehension"
+```
+
+**Power analysis**
+```{r}
+#| eval: false
+
+# make global data frame to store results in
+# filling first column with all sample sizes
+# results acheived will be added as columns
+results_df <- data.frame(n = seq(samplesize_min, samplesize_max, samplesize_step))
+
+
+
+## POWER ANALYSES ##############################################################
+for (j in 1:n_sim) {  # loop over number of simulations
+  # for this loop: make local data frame to store results in
+  results_df_j <- data.frame(n = as.numeric(),   
+                             BF = as.numeric())
+  
+  for (i in seq(samplesize_min, samplesize_max, samplesize_step)) { # loop over all sample sizes
+    set.seed(123+i+j) # seed for reproducibility
+    
+    # simulate data set with two groups that differ in smallest_es 
+    simdat <- data.frame(comprehension = c(rnorm(n = i/2, mean = 0, sd = 1), 
+                                           rnorm(n = i/2, mean = smallest_es, sd = 1)),
+                         reading_level = c(rep("standard", i/2), 
+                                           rep("easy", i/2)))
+    # compute t-test
+    ttest <- t_test(comprehension ~ reading_level, data=simdat)
+    
+    set.seed(456+i+j)  # seed for reproducibility
+    # Use bain to compute BFs for specific hypotheses
+    results <- bain(ttest, "groupeasy = groupstandard; groupeasy > groupstandard")
+    
+    # store result as new row in local data frame
+    results_df_j <- results_df_j %>%
+      add_row(n = i,  # store sample size
+              BF = results$fit$BF[2])  # store: we are interested in BF.c of H2
+  }
+  # rename column to indicate the current number of simulation
+  names(results_df_j) <- c("n", paste0("BF_sim", j))
+  # add column to global result data frame
+  results_df <- left_join(results_df, results_df_j, by = "n")
+}
+```
+
+#### Interpretation of results
+
+**Wrangle and plot results**
+```{r}
+#| eval: false
+
+# wrangle results
+results_df_l <- results_df %>%
+  pivot_longer(contains("BF_sim"),  # make long data set
+               names_to = "n_sim", 
+               values_to = "BF") %>%
+  mutate(BF_pos = ifelse(BF >= 5, 1, 0), # code BF larger than 5 as true positive
+         BF_inc = ifelse(BF < 5 & BF > 1/5, 1, 0), # code BF between 5 and 1/5 as inconclusive
+         BF_neg = ifelse(BF <= 1/5, 1, 0)) # code BF smaller than 1/5 as false negative
+
+
+### TRUE POSITIVE
+p1 <- ggplot(results_df_l, aes(x = n, y = BF_pos)) + 
+  stat_summary(fun = mean) +                   # percent of simulations with true positive result
+  geom_hline(yintercept = .8, color = "red") + # line for 80% power
+  geom_hline(yintercept = .9, color = "darkred") + # line for 90% power
+  scale_y_continuous(limits = c(0,1), expand = c(0,0)) +
+  ggtitle("True positive") +
+  ylab("share of true positive") +
+  theme_light()
+
+### INCONCLUSIVE
+p2 <- ggplot(results_df_l, aes(x = n, y = BF_inc)) + 
+  stat_summary(fun = mean) +
+  scale_y_continuous(limits = c(0,1), expand = c(0,0)) +
+  ggtitle("Inconclusive") +
+  ylab("share of inconclusive") +
+  theme_light()
+
+### FALSE NEGATIVE
+p3 <- ggplot(results_df_l, aes(x = n, y = BF_neg)) + 
+  stat_summary(fun = mean) +                    # percent of simulations with false negative result
+  geom_hline(yintercept = .2, color = "red") +  # line for beta = 20%
+  scale_y_continuous(limits = c(0,1), expand = c(0,0)) +
+  ggtitle("False negative") +
+  ylab("share of false negative") +
+  theme_light()
+
+# Plot these togehter
+ggarrange(p1, p2, p3,
+          ncol = 2,
+          nrow = 2)
+```
+
+```{r}
+#| eval: false
+
+results_df_l
+```
+
+:::
 
 ## Paired samples
 
@@ -56,48 +190,40 @@ hist(sleep$extra)
 
 ## ANOVA, 2x2 between design (Anna)
 
+::: {.panel-tabset} 
+
 #### What is tested?
 
-#How large does your sample have to be to make the expected effect visible?
+> How large does your sample have to be to make the expected effect visible?
 
 We can also look for the achieved power, when providing a specific sample size.
 
 **What we need to provide (when investigating sample size)?**
 
-•	Number of groups/conditions: 	individual for your study
+* Number of groups/conditions: 	individual for your study
     in R: k=
-•	Expected effect size (f): 	individual for your study
+* Expected effect size (f): 	individual for your study
     in R: f=
-•	Alpha-level: 			.05
+* Alpha-level: 			.05
     in R: sig.level=.05
-•	Power: 				0.8 or 0.9			
++ Power: 				0.8 or 0.9			
     in R: power=.9
 
-**Example 1: One-Way ANOVA**
+#### Example 1: One-Way ANOVA
 
 You want to know if students have a favorite subject among the subjects sports, art or music -> 3 groups. Derived from previous literature, you expect a moderate effect of 0.25. The level of significance should be 0.05 and the power = 0.8.
 
-```{library(pwr)
+```{r}
+library(pwr)
 
-pwr.anova.test(k = 3, f = 0.25, sig.level = 0.05, power = 0.8)}
-
+pwr.anova.test(k = 3, f = 0.25, sig.level = 0.05, power = 0.8)
 ```
 
-Results: 
 
-“Balanced one-way analysis of variance power calculation 
 
-k = 3
-n = 52.3966
-f = 0.25
-sig.level = 0.05
-power = 0.8
+**Participants needed (3 group * 52,3966): n = 157**
 
-NOTE: n is number in each group”
-
-**Participants needed (3 group * 52,3966): **n = 157**
-
-**Example 2:Two Way ANOVA**
+#### Example 2:Two Way ANOVA
 
 You have two Factors, Factor A and Factor B, each has 2 categories/conditions. (2x2 = 4 group design; A1B1, A1B2, A2B1, A2B2). Derived from previous literature, for your overall model you expect a moderate effect of 0.25. The level of significance should be 0.05 and the power = 0.8.
 
@@ -108,20 +234,16 @@ This is the simple version...
 Only thing to mention:
 k = number of groups in total, in our case you calculate 2x2->k = 4 
 
-```{pwr.anova.test(k = 4,f= 0.25, sig.level = 0.05, power = 0.8)}
+```{r}
+library(pwr)
 
+pwr.anova.test(k = 4,f= 0.25, sig.level = 0.05, power = 0.8)
 ```
-results: 
-	      "k = 4
-              n = 44.59927
-              f = 0.25
-      sig.level = 0.05
-          power = 0.8
 
-NOTE: n is number in each group"
 
 **Participants needed (4 groups x 44,59): 178.36.**
 
+:::
 
 ## ANOVA, repeated measures
 

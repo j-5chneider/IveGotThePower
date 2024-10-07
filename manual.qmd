@@ -58,34 +58,57 @@ library(ggpubr)
 ```
 
 
-**Specifications of power analysis**
+**Specifications of power analysis**  
+
+What range of sample size do you want to look at? You can choose your
+
+- smallest sample size 
+- biggest sample size
+- the steps that R should go up from smallest to biggest
 
 ```{r}
 # Which samples sizes are we looking at?
 samplesize_min <- 40    # min sample size to begin with
 samplesize_max <- 250   # max sample size to end with
 samplesize_step <- 10   # step size between min and max
+```
+\
 
+- How many simulations should R do for each sample size? The more simulations the more accurate the power analysis. I used 100 only for this script to run fast. Please use 1,000 to 10,000 for high accuracy.
+
+```{r}
 # how many simulations should do?
-n_sim <- 100
+n_sim <- 100 # set Simulations to 1000 or higher!
+```
+\
 
+- What is the smallest effect size of interest in your study?
+
+```{r}
 # what is the smallest effect size of interest?
 smallest_es <- .36 # Taken from https://doi.org/10.1177%2F15562646211020160
                    # see Tab. 2 "low reading level" vs. "control"
                    # at DV "Comprehension"
 ```
+\
 
-**Power analysis**
+
+
+**Power analysis**  
+  
+First set up an empty data frame to store the results in
+
 ```{r}
-#| eval: false
-
 # make global data frame to store results in
 # filling first column with all sample sizes
 # results acheived will be added as columns
 results_df <- data.frame(n = seq(samplesize_min, samplesize_max, samplesize_step))
+```
+\
 
+Then we run the simulation 100 times for each sample size.
 
-
+```{r}
 ## POWER ANALYSES ##############################################################
 for (j in 1:n_sim) {  # loop over number of simulations
   # for this loop: make local data frame to store results in
@@ -123,8 +146,6 @@ for (j in 1:n_sim) {  # loop over number of simulations
 
 **Wrangle and plot results**
 ```{r}
-#| eval: false
-
 # wrangle results
 results_df_l <- results_df %>%
   pivot_longer(contains("BF_sim"),  # make long data set
@@ -167,10 +188,16 @@ ggarrange(p1, p2, p3,
           ncol = 2,
           nrow = 2)
 ```
+\
+
+* We see that from **N=130** the `true positive` (=Power) stays over .80 (=80%). So this would be a good option.
+* We also see that from **N=160** the `inconclusive` results will drop and stay low. So if we don't want to run the risk of receiving inconclusive results, we might want to opt for this sample size.
+
+\
+
+**These are the exact numbers from the simulation**
 
 ```{r}
-#| eval: false
-
 results_df_l
 ```
 

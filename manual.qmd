@@ -250,7 +250,7 @@ pwr.anova.test(k = 3, f = 0.25, sig.level = 0.05, power = 0.8)
 
 **Participants needed (3 group * 52,3966): n = 157**
 
-#### Example 2:Two Way ANOVA
+#### Example 2: Two Way ANOVA
 
 You have two Factors, Factor A and Factor B, each has 2 categories/conditions. (2x2 = 4 group design; A1B1, A1B2, A2B1, A2B2). Derived from previous literature, for your overall model you expect a moderate effect of 0.25. The level of significance should be 0.05 and the power = 0.8.
 
@@ -269,6 +269,95 @@ pwr.anova.test(k = 4,f= 0.25, sig.level = 0.05, power = 0.8)
 
 
 **Participants needed (4 groups x 44,59): 178.36.**
+
+
+#### Example 3: Two Way Between ANOVA
+
+Let's imagine we measure reaction times to a red or blue dot being displayed on a screen. We set out to test old vs. young people. Our assumption is, that old people recognize the blue dot quicker (lower reaction time) and young people recognize the red dot quicker (lower reaction time).  
+  
+This results in a 2x2 between design with the effect of interest being the interaction effect.
+
+
+```{r}
+library(Superpower)
+
+mu <- c(-0.25, 0.25, 0.25,-0.25) # Which mean differences do we expect?
+n <- 23             # How large is the sample?
+sd <- 1             # standard deviation, leave at 1 so that mean differences (mu) can be interpreted as ~ Cohen's d
+string = "2b*2b"    # 2 between factors with 2 groups each
+alpha_level <- 0.05 # as is tradition
+labelnames = c("age", "old",      # Label OF groups (optional)
+               "young", "color", 
+               "blue", "red")
+
+# Definition of design, so that R can simulate the data
+design_result <- ANOVA_design(design = string,
+                              n = n,
+                              mu = mu,
+                              sd = sd,
+                              labelnames = labelnames)
+
+# number of simulations
+# this should usually be a lot more (1,000 - 10,000)
+# but with 100 the script runs faster
+nsims <- 100
+
+set.seed(1100101) # this will enable reproducible results
+
+# run simulation
+simulation_result <- ANOVA_power(design_result, 
+                                 alpha_level = alpha_level, 
+                                 nsims = nsims,
+                                 verbose = TRUE)
+```
+\
+
+We see that the power of our interaction effect (`anova_age:color`) with `N=23` per group is **78%**. That's not quite enough. We therefore need to rise the N a bit more.
+
+
+
+#### Example 4: Two Way Within-Between ANOVA
+
+Let's imagine we measure reaction times to a red or blue dot being displayed on a screen. We set out to test young people and test **the same** people a couple years later (="old"). Our assumption is, that when old, people recognize the blue dot quicker (lower reaction time) than when they were young. When they were young, however, they recognized the red dot quicker (lower reaction time).  
+  
+This results in a 2x2 within-between design with the effect of interest being the interaction effect.
+
+```{r}
+library(Superpower)
+
+mu <- c(-0.25, 0.25, 0.25,-0.25) # Which mean differences do we expect?
+n <- 23             # How large is the sample?
+sd <- 1             # standard deviation, leave at 1 so that mean 
+                    # differences (mu) can be interpreted as ~ Cohen's d
+
+string = "2w*2b"    # 2 between factors with 2 groups each
+r <- 0.5            # which correlation of the within measurement (e.g. pre-post) do we expect?
+alpha_level <- 0.05 # as is tradition
+labelnames = c("age", "old", "young", # Label OF groups (optional)
+               "color", "blue", "red")
+
+# Definition of design, so that R can simulate the data
+design_result <- ANOVA_design(design = string,
+                              n = n,
+                              mu = mu,
+                              sd = sd,
+                              labelnames = labelnames)
+
+# number of simulations
+# this should usually be a lot more (1,000 - 10,000)
+# but with 100 the script runs faster
+nsims <- 100
+
+set.seed(1100101) # this will enable reproducible results
+
+# run simulation
+simulation_result <- ANOVA_power(design_result, 
+                                 alpha_level = alpha_level, 
+                                 nsims = nsims,
+                                 verbose = TRUE)
+```
+
+We see that the power of our interaction effect (`anova_age:color`) with `N=23` per group is **74%**. That's not quite enough. We therefore need to rise the N a bit more.
 
 :::
 

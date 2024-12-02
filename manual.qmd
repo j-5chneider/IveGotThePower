@@ -211,6 +211,110 @@ results_df_l
 
 ## Linear, multiple predictors (David)
 
+::: {.panel-tabset} 
+
+#### What is tested?
+
+**When running a multiple regression, there are two ways to think about the power you may or may not have.**
+
+-  Focus on having a sufficient power to the variance accounted for by the set of predictors (i.e. R2) 
+-  Focus on having a sufficient power to the unique variance accounted for by a single predictor
+
+Package used for this sequence:
+[https://CRAN.R-project.org/package=pwrss](https://CRAN.R-project.org/package=pwrss )
+
+#### I've got R2: What is the minimum sample size?
+
+We want to run a multiple regression study in an existing research area using 3 predictors. A past study found an R2 of .30. 
+
+We are expecting that the variables in our linear regression will explain 30% of the variance in the outcome (`r2 = 0.30`) as well. How many people do we need in our study?
+
+**What we need to provide (when investigating sample size, given R2)?**
+
+- Number of predictor terms (is degrees of freedom): 	`k = 3` (factual)
+- Alpha-level: `alpha = 0.05` (convention)
+- Desired power: `power = 0.80` (convention)
+- and of course the desired R2: `r2 = 0.30 ` (i.e. previous research, or other thoughts)
+
+```{r}
+# install.packages("pwrss")
+library(pwrss)
+
+pwrss.f.reg(r2 = 0.30, k = 3, alpha = 0.05, power = 0.80)
+```
+
+[linked source](https://cran.r-project.org/web/packages/pwrss/vignettes/examples.html#3_Linear_Regression_(F_and_t_Tests) 
+
+**Participants needed: n = 30**
+
+#### I've got R2 change: What is the minimum sample size?
+
+We are looking at the same study, that used 3 predictor and found an R2 = .30. 
+
+We expect predictor C will account for 2% of the variance in the criterion above and beyond the other two predictors. How many people do we need in our study?
+
+**What we need to provide (when investigating sample size, given R-squared change)?**
+
+Same as above:
+
+- Number of predictor terms (is degrees of freedom): 	`k = 3` 
+- Alpha-level: `alpha = 0.05` 
+- Desired power: `power = 0.80`
+
+And (new):
+
+- number predictor terms whose incremental contribution to R-squared change is of interest, here: `m = 1` 
+- f2: Expected Cohen's f-squared (an alternative to R2 specification), here: `f2 = r2 / (1 - r2) = 0.02 / (1 - 0.30) = 0.029`
+
+```{r}
+library(pwrss)
+
+pwrss.f.reg(f2 = 0.029, k = 3, m = 1, alpha = 0.05, , power = 0.80)
+```
+
+[linked source](https://dstanley4.github.io/psyc4780bookdown/sample-size-for-multiple-regression.html#sample-size-using-sr2) 
+
+**Participants needed: n = 273**
+
+#### What else?
+
+> The pwrss-package gives you whatever you need:
+
+If you have done your study and want to know your power, this is possible.
+Let's look at the first example above:
+
+```{r}
+library(pwrss)
+
+pwrss.f.reg(r2 = 0.30, k = 3, n = 30, alpha = 0.05)
+```
+
+**Statistical power = 0.806; lucky you**
+
+#### Talk beta to me!
+
+We again want to predict a variable Y using three predictors X1, X2 and X3. We are mainly interested in the effect of X1 and expect a standardized regression coefficient of β1 = 0.20. What is the minimum required sample size? 
+
+```{r}
+# library(pwrss)
+
+pwrss.t.reg(beta1 = 0.20, k = 3, power = .80, alpha = 0.05)
+```
+
+**Participants needed: n = 191**
+
+You can also add R squared again, if there is information available:
+
+```{r}
+pwrss.t.reg(beta1 = 0.20, k = 3, power = .80, alpha = 0.05, r2 = 0.30)
+```
+
+**Participants needed: n = 140**
+
+[linked source](https://cran.r-project.org/web/packages/pwrss/vignettes/examples.html#32_Single_Regression_Coefficient_(z_or_t_Test)) 
+
+:::
+
 ## Logistic, multiple predictors
 
 ## Multilevel

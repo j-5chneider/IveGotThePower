@@ -243,7 +243,7 @@ library(pwrss)
 pwrss.f.reg(r2 = 0.30, k = 3, alpha = 0.05, power = 0.80)
 ```
 
-[linked source](https://cran.r-project.org/web/packages/pwrss/vignettes/examples.html#3_Linear_Regression_(F_and_t_Tests) 
+[linked source](https://cran.r-project.org/web/packages/pwrss/vignettes/examples.html#3_Linear_Regression_(F_and_t_Tests))
 
 **Participants needed: n = 30**
 
@@ -293,7 +293,7 @@ pwrss.f.reg(r2 = 0.30, k = 3, n = 30, alpha = 0.05)
 
 #### Talk beta to me!
 
-We again want to predict a variable Y using three predictors X1, X2 and X3. We are mainly interested in the effect of X1 and expect a standardized regression coefficient of β1 = 0.20. What is the minimum required sample size? 
+We again want to predict a variable y using three predictors x1, x2 and x3. We are mainly interested in the effect of X1 and expect a standardized regression coefficient of β1 = 0.20. What is the minimum required sample size? 
 
 ```{r}
 # library(pwrss)
@@ -312,6 +312,83 @@ pwrss.t.reg(beta1 = 0.20, k = 3, power = .80, alpha = 0.05, r2 = 0.30)
 **Participants needed: n = 140**
 
 [linked source](https://cran.r-project.org/web/packages/pwrss/vignettes/examples.html#32_Single_Regression_Coefficient_(z_or_t_Test)) 
+
+#### A way to specify every piece of the model: Simulated power
+
+"One can just use a simulated power analysis to specify every piece of the model that they are weighting if they are interested in a single coefficient. For example, if we want to specify the exact beta coefficients of each predictor, their standard error, the sample size, or any other metric, we could just simulate it in R directly." [found here](https://stats.stackexchange.com/a/643622) 
+
+**What we can provide when doing a simulated power analysis?**
+
+A regression model looks like `y = (beta0) + (beta1 * x1) + (beta2 * x2) + e`
+
+So we could specify every part
+
+- Sample size `n = `
+- Intercept: `beta0 = `
+- The slope of x1: `beta1 = `
+- The slope of x2: `beta2 = `
+- The residual standard error of the model: `e = `
+
+In the following we will try to match the example of the section "Talk beta to me!", to see if this is right,
+
+We looked at 3 predictors, were interested in the effect of x1 and expected a standardized regression coefficient of β1 = 0.20. The residual standard error of the model was not specified.
+
+`y = (beta0) + (0.20 * x1) + (x2) + (x3)`
+
+First, we will generate data of this model:
+
+```{r}
+# Data Generator Function
+
+gen.data <- function(n, beta1){
+  x1 <- rnorm(n)
+  x2 <- rnorm(n)
+  x3 <- rnorm(n)
+  y <- (beta1 * x1) + x2 +x3
+  df <- data.frame(x1, x2, x3, y)
+  return(df)
+}
+```
+
+Second, we set up the simulation:
+
+```{r}
+# Setup Simulation
+
+boot <- 1000
+alpha <- 0.05  # significance level
+p <- numeric(boot)
+n <- 191  # sample size (taken from the previous example)
+beta1 <- .20 # slope 1
+```
+
+Third, we run the simulation:
+
+```{r}
+# Setup simulation
+
+for(i in 1:boot){
+  df <- gen.data(
+    n = n,
+    beta1 = beta1
+    )
+  fit <- lm(y ~ x1 + x2 + x3, df)
+  p_values <- summary(fit)$coefficients[,4]
+  p[i] <- p_values[2]
+}
+```
+
+Last, we can calculate the power:
+
+```{r}
+# Calculate power
+power <- mean(p < alpha)
+
+# check power
+power
+```
+
+**Statistical power = 0.8 ** -.-
 
 :::
 
